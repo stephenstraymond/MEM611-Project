@@ -1,4 +1,4 @@
-import matplotlib
+import matplotlib as plt
 import numpy as np
 from math import sqrt
 
@@ -66,6 +66,35 @@ def error_calc(error):
     rel_error = sqrt(squared_sum)
     return rel_error
 
+def plotTheta(THETA,max_t,d_t,mesh_size):
+    """
+    plotTheta(theta):
+        Creates a bunch of plots based on the given theta matrix
+    """
+    theta = THETA[-1]
+    time = makeRange(0,d_t,max_t)
+    plt_x,plt_y,plt_z = []
+
+    for i in range(0,len(theta)):
+        for j in range(0,len(theta)):
+            plt_x.append(i/mesh_size)
+            plt_y.append(j/mesh_size)
+            plt_z.append(theta[i][j])
+    z_max = max(plt_z)
+    z_min = min(plt_z)
+    plot_name = "%i Grid Distribution" %mesh_size
+    color_map = plt.cm.gist_heat
+    fig, ax = plt.subplots()
+    cax = ax.pcolor(plt_x, plt_y, plt_z, cmap = color_map, vmin = z_min, vmax = z_max)
+    ax.set_xlim(0,1)
+    ax.set_ylim(0,1)
+    fig.colorbar(cax).set_label(plot_name,rotation=270)
+    ax.set_title(plot_name)
+    ax.set_aspect('equal')
+    figure = plt.gcf()
+    plt.shot()
+    return figure
+
 def main():
     alpha = .01
     THETA_ALL = {}
@@ -122,17 +151,23 @@ def main():
                 print "STOPPED AT 75 ITERATIONS"
                 break
         mesh_string = "MESH #%i" %mesh_size
+        mesh_string_time = mesh_string + "-time"
         THETA_ALL[mesh_string] = theta
+        THETA_ALL[mesh_string_time] = time_vec
     return THETA_ALL
 
 if __name__ == "__main__":
     THETA_ALL = main()
-    user_input = ''
-    while user_input != 'end':
-        user_input = raw_input("Mesh size? [10] [20] [40] [80] [end]:  ")
-        if user_input !=  'end':
-            theta = THETA_ALL["MESH #%s" %user_input]
-            theta_1 = theta[-1]
-            x = []
-            y = []
-            for 
+    answers = ['10','20','40','80','end']
+    while True:
+        user_input = ''
+        while user_input not in answers:
+            user_input = raw_input("Mesh size? [10] [20] [40] [80] [end]:  ")
+        if user_input == 'end':
+            break
+        else:
+            mesh_string = "MESH #%s" %user_input
+            mesh_string_time = mesh_string + "-time"
+            theta = THETA_ALL[mesh_string]
+            time_vec = THETA_ALL[mesh_string_time]
+            plotTheta(theta, max(time_vec), time_vec[1]-time_vec[0],int(user_input))
