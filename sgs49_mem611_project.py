@@ -1,7 +1,9 @@
-import matplotlib as plt
 import numpy as np
 from math import sqrt
-
+import Tkinter,matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+plt.ion()
 def makeRange(low, step, high):
     """
     makeRange(low, step, high):
@@ -20,7 +22,8 @@ def makeRange(low, step, high):
                         and the number of steps between them.
     """
     range_vec = [low]
-    while range_vec[-1] <= high:
+    s = np.sign(high-low)
+    while s*(range_vec[-1]+step) <= s*high:
         range_vec.append(range_vec[-1]+step)
 
     return range_vec
@@ -73,27 +76,29 @@ def plotTheta(THETA,max_t,d_t,mesh_size):
     """
     theta = THETA[-1]
     time = makeRange(0,d_t,max_t)
-    plt_x,plt_y,plt_z = []
-
-    for i in range(0,len(theta)):
-        for j in range(0,len(theta)):
-            plt_x.append(i/mesh_size)
-            plt_y.append(j/mesh_size)
-            plt_z.append(theta[i][j])
-    z_max = max(plt_z)
-    z_min = min(plt_z)
-    plot_name = "%i Grid Distribution" %mesh_size
-    color_map = plt.cm.gist_heat
-    fig, ax = plt.subplots()
-    cax = ax.pcolor(plt_x, plt_y, plt_z, cmap = color_map, vmin = z_min, vmax = z_max)
-    ax.set_xlim(0,1)
-    ax.set_ylim(0,1)
-    fig.colorbar(cax).set_label(plot_name,rotation=270)
-    ax.set_title(plot_name)
-    ax.set_aspect('equal')
-    figure = plt.gcf()
-    plt.shot()
-    return figure
+    plt_x,plt_y,plt_z = [],[],[]
+    plt_x = np.linspace(0,1,1/mesh_size)
+    plt_y = np.linspace(0,1,1/mesh_size)
+    plt_z = np.array(theta)
+    plt_x, plt_y = np.meshgrid(plt_x, plt_y)
+    z_max = plt_z.max()
+    z_min = plt_z.min()
+    #plot_name = "%i Grid Distribution" %mesh_size
+    #color_map = matplotlib.pyplot.cm.gist_heat
+    #fig, ax = matplotlib.pyplot.subplots()
+    #cax = ax.pcolor(plt_x, plt_y, plt_z, cmap = color_map, vmin = z_min, vmax = z_max)
+    #ax.set_xlim(0,1)
+    #ax.set_ylim(0,1)
+    #fig.colorbar(cax).set_label(plot_name,rotation=270)
+    #ax.set_title(plot_name)
+    #ax.set_aspect('equal')
+    #figure = matplotlib.pyplot.gcf()
+    #matplotlib.pyplot.show()
+    #return figure
+    plt.hexbin(plt_x,plt_y,plt_z, cmap='RdBu', vmin=z_min, vmax = z_max)
+    plt.show()
+    x = raw_input("Continue? [Enter] ")
+    return 0
 
 def main():
     alpha = .01
@@ -157,6 +162,10 @@ def main():
     return THETA_ALL
 
 if __name__ == "__main__":
+    x = makeRange(1,2,8)
+    y = makeRange(8,-2,1)
+    print x
+    print y
     THETA_ALL = main()
     answers = ['10','20','40','80','end']
     while True:
